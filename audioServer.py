@@ -105,26 +105,27 @@ def initialize_data_socket():
 	print('[INFO] Data connection established ', addr)
 
 def data_socket_loop():
-	global writing_file_id
-	
-	connection_lost = False
-	while not connection_lost and not close_sockets:
-		try:
-			data = data_socket.recv(1024)
-		except:
-			print('Connetion was lost')
-			connection_lost = True
-		if not data: break
-		elif data == b'SOF':
-			print('[DEBUG] Start of file flag received. Current file id: ' + str(writing_file_id))
-			create_new_temp()
-			continue
-		elif data == b'EOF':
-			writing_file_id += 1
-			print('[DEBUG] End of file flag received. Current file id: ' + str(writing_file_id))
-		
-		else:
-			write_data_to_temp(data)
+        global writing_file_id
+        connection_lost = False
+        with data.makefile() as socket_file:
+                while not connection_lost and not close_sockets:
+                        try:
+                                data = socket_file.readline()
+                        except:
+                                print('Connetion was lost')
+                                connection_lost = True
+                        if not data: break
+                        elif data == 'SOF':
+                                print('[DEBUG] Start of file flag received. Current file id: ' + str(writing_file_id))
+                                create_new_temp()
+                                continue
+                        elif data == 'EOF':
+                                writing_file_id += 1
+                                print('[DEBUG] End of file flag received. Current file id: ' + str(writing_file_id))
+                        
+                        else:
+                                write_data_to_temp(data)
+
 			
 '''
 End of data socket
