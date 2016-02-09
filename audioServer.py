@@ -3,6 +3,8 @@ import vlc
 import os
 import os.path
 import socket
+import struct
+import binascii
 from threading import Thread
 from enum import Enum
 # end of imports
@@ -117,6 +119,9 @@ def data_socket_loop():
 		if not data: break
 		elif data == b'SOF':
 			print('[DEBUG] Start of file flag received. Current file id: ' + str(writing_file_id))
+			#unpacker = struct.Struct('I')
+			data = data_socket.recv(1024)
+			print(data.decode('ASCII'))
 			create_new_temp()
 			continue
 		elif data == b'EOF':
